@@ -122,7 +122,7 @@ if dependenciesOptions.nil?
   dependencies.select!(&:top_level?)
 else
   dependencies.select! do |d|
-    dependenciesOptions.any? { |s| s.include?(d.name.downcase) }
+    dependenciesOptions.any? { |s| d.name.downcase.include?(s) }
 #     dependenciesOptions.include?(d.name.downcase)
   end
 end
