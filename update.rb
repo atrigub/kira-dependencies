@@ -98,6 +98,10 @@ dependenciesOptions = ENV["DEPENDENCIES"] || nil
 unless dependenciesOptions.nil?
     dependenciesOptions = dependenciesOptions.split(",").map { |o| o.strip.downcase }
 end
+puts "OPTIONS"
+
+puts dependenciesOptions
+
 
 ##############################
 # Parse the dependency files #
@@ -111,6 +115,9 @@ parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
 
 dependencies = parser.parse
 
+puts "BEFORE"
+puts dependencies
+
 if dependenciesOptions.nil?
   dependencies.select!(&:top_level?)
 else
@@ -118,6 +125,10 @@ else
     dependenciesOptions.include?(d.name.downcase)
   end
 end
+
+puts "========================="
+puts "AFTER"
+puts dependencies
 
 opened_merge_requests = 0
 dependencies.each do |dep|
