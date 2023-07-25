@@ -94,6 +94,11 @@ fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
 files = fetcher.files
 commit = fetcher.commit
 
+dependenciesOption = ENV["DEPENDENCIES"] || nil
+unless dependenciesOption.nil?
+    dependenciesOption = value.split(",").map { |o| o.strip.downcase }
+end
+
 ##############################
 # Parse the dependency files #
 ##############################
@@ -105,8 +110,17 @@ parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
 )
 
 dependencies = parser.parse
+
+if dependenciesOption.nil?
+  dependencies.select!(&:top_level?)
+else
+  dependencies.select! do |d|
+    dependenciesOption.include?(d.name.downcase)
+  end
+end
+
 opened_merge_requests = 0
-dependencies.select(&:top_level?).each do |dep|
+dependencies.each do |dep|
   if ENV["DEPENDABOT_MAX_MERGE_REQUESTS"] && opened_merge_requests >= ENV["DEPENDABOT_MAX_MERGE_REQUESTS"].to_i
     puts "Opened merge request limit reached!"
     break
