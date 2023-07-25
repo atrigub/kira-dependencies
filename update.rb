@@ -94,9 +94,9 @@ fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
 files = fetcher.files
 commit = fetcher.commit
 
-dependenciesOption = ENV["DEPENDENCIES"] || nil
-unless dependenciesOption.nil?
-    dependenciesOption = value.split(",").map { |o| o.strip.downcase }
+dependenciesOptions = ENV["DEPENDENCIES"] || nil
+unless dependenciesOptions.nil?
+    dependenciesOptions = dependenciesOptions.split(",").map { |o| o.strip.downcase }
 end
 
 ##############################
@@ -111,11 +111,11 @@ parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
 
 dependencies = parser.parse
 
-if dependenciesOption.nil?
+if dependenciesOptions.nil?
   dependencies.select!(&:top_level?)
 else
   dependencies.select! do |d|
-    dependenciesOption.include?(d.name.downcase)
+    dependenciesOptions.include?(d.name.downcase)
   end
 end
 
