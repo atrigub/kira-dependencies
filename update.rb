@@ -116,19 +116,20 @@ parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
 dependencies = parser.parse
 
 puts "BEFORE"
-puts dependencies
+puts dependencies.inspect
 
 if dependenciesOptions.nil?
   dependencies.select!(&:top_level?)
 else
   dependencies.select! do |d|
-    dependenciesOptions.include?(d.name.downcase)
+    dependenciesOptions.any? { |s| s.include?(d.name.downcase) }
+#     dependenciesOptions.include?(d.name.downcase)
   end
 end
 
 puts "========================="
 puts "AFTER"
-puts dependencies
+puts dependencies.inspect
 
 opened_merge_requests = 0
 dependencies.each do |dep|
