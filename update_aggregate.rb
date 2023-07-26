@@ -94,7 +94,7 @@ fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
 files = fetcher.files
 commit = fetcher.commit
 
-dependenciesOptions = ENV["DEPENDENCIES"] || 'ft,phplib,ecom'
+dependenciesOptions = ENV["DEPENDENCIES"] || nil
 unless dependenciesOptions.nil?
     dependenciesOptions = dependenciesOptions.split(",").map { |o| o.strip.downcase }
 end
