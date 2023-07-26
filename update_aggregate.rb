@@ -194,7 +194,7 @@ unless updated_deps.empty?
         puts "Pull request created."
     rescue StandardError => e
         raise e if fail_on_exception
-        puts "error updating #{dep.name} (continuing)"
+        puts "error creating pull_request"
         puts e.full_message
     end
 else
