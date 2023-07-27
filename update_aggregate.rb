@@ -2,7 +2,6 @@
 # project, creating PRs where necessary.
 #
 # It is intended to be used as a stop-gap until Dependabot's hosted instance
-# supports GitHub Enterprise and GitLab (coming soon!)
 
 require "json"
 require "dependabot/file_fetchers"
@@ -153,8 +152,22 @@ dependencies.each do |dep|
     deps = checker.updated_dependencies(
       requirements_to_unlock: requirements_to_unlock
     )
-
     updated_deps.concat(deps)
+
+    #####################################
+    # Generate updated dependency files #
+    #####################################
+    print "\n  - Updating #{dep.name} (from #{dep.version})…"
+    updater = Dependabot::FileUpdaters.for_package_manager(package_manager).new(
+      dependencies: deps,
+      dependency_files: files,
+      credentials: credentials,
+    )
+
+    updated_files = updater.updated_dependency_files
+    hash = updated_files.map { |file| [file.name, file] }.to_h
+
+    files = files.map { |x| hash.key?(x.name) ? hash[x.name] : x }
 
   rescue StandardError => e
     raise e if fail_on_exception
@@ -165,18 +178,8 @@ end
 
 unless updated_deps.empty?
     begin
-        #####################################
-        # Generate updated dependency files #
-        #####################################
-        # print "\n  - Updating #{dep.name} (from #{dep.version})…"
-        updater = Dependabot::FileUpdaters.for_package_manager(package_manager).new(
-          dependencies: updated_deps,
-          dependency_files: files,
-          credentials: credentials,
-        )
 
-        updated_files = updater.updated_dependency_files
-
+        group = Dependabot::DependencyGroup.new(name: "dependency-updates", rules: {})
         ########################################
         # Create a pull request for the update #
         ########################################
@@ -184,10 +187,11 @@ unless updated_deps.empty?
             source: source,
             base_commit: commit,
             dependencies: updated_deps,
-            files: updated_files,
+            files: files,
             credentials: credentials,
             label_language: true,
-            assignees: assignees
+            assignees: assignees,
+            dependency_group: group
         )
         pull_request = pr_creator.create
 
@@ -200,5 +204,3 @@ unless updated_deps.empty?
 else
     puts 'Dependencies are up to date'
 end
-
-puts "Done!"
