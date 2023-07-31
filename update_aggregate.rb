@@ -110,7 +110,7 @@ parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
 
 dependencies = parser.parse
 
-if dependenciesOptions.nil?
+if dependenciesOptions.nil? || dependenciesOptions.empty?
   dependencies.select!(&:top_level?)
 else
   dependencies.select! do |d|
